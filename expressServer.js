@@ -1,5 +1,6 @@
 const express = require('express');
 const app = express();
+const morgan = require('morgan');
 const port = 8080;
 
 const urlDatabase = {
@@ -7,7 +8,7 @@ const urlDatabase = {
   '9sm5xK': 'http://www.google.com',
 };
 
-app.use((req, res, next) => {});
+app.use(morgan('dev'));
 
 //set the homepage response
 app.get('/', (req, res) => {
@@ -26,7 +27,7 @@ app.get('/hello', (req, res) => {
 
 app.get('*', (req, res) => {
   res.status(404);
-  res.send(`${res.statusCode} This is not the page youre looking for`);
+  res.send(`${res.statusCode} This is not the page you're looking for`);
 });
 
 //show what port we're on and that the server is running
