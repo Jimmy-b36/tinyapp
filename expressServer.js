@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const morgan = require('morgan');
 const port = 8080;
+app.set('view engine', 'ejs');
 
 const urlDatabase = {
   b2xVn2: 'http://www.lighthouselabs.ca',
