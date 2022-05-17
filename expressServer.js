@@ -51,8 +51,15 @@ app.get('/urls/:shortURL', (req, res) => {
 });
 
 app.post('/urls', (req, res) => {
+  let shortURL = '';
+  for (let i = 0; shortURL.length < 6; i++) {
+    let tmpStr = String.fromCharCode(Math.floor(Math.random() * 74 + 48));
+    tmpStr = tmpStr.replace(/[&\/\\#,+()$~%.;`'":[\]*?<_>=@{}]/, 'q');
+    shortURL += tmpStr;
+  }
+  urlDatabase[shortURL] = req.params.longURL;
   console.log(req.body); // Log the POST request body to the console
-  res.send('Ok'); // Respond with 'Ok' (we will replace this)
+  res.redirect(`/urls/${shortURL}`);
 });
 
 //catch all and 404 responder
