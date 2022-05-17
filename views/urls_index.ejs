@@ -29,18 +29,24 @@
             <td><a href="<%=urls[url]%>"><%= url %></a></td>
             <td><%= urls[url] %></td>
             <td>
-              <span
-                ><form method="POST" action="/urls/<%=url%>/delete">
-                  <button type="submit" class="btn btn-danger">DELETE</button>
-                </form></span
+              <form
+                method="POST"
+                action="/urls/<%=url%>/update"
+                name="longURL"
               >
-
-              <span
-                ><form method="POST" action="/urls/<%=url%>/update">
-                  <button type="submit" class="btn btn-info">UPDATE</button>
-                </form></span
-              >
+                <button type="submit" class="btn btn-info">UPDATE</button>
+              </form>
             </td>
+          </form>
+            <td>
+              <form
+                class="form-inline"
+                method="POST"
+                action="/urls/<%=url%>/delete"
+              >
+                <button type="submit" class="btn btn-danger">DELETE</button>
+</td>
+            
           </tr>
           <% } %>
         </tbody>

@@ -17,5 +17,31 @@
         <a href="/urls/new" class="nav-item nav-link">Create New URL</a>
       </div>
     </div>
+
+    <form action="/urls/login" method="POST" class="form-inline">
+      <label class="sr-only" for="username">Username</label>
+      <input
+        name="username"
+        type="text"
+        class="form-control mb-2 mr-sm-2"
+        id="username"
+        placeholder="Username"
+      />
+
+      <label class="sr-only" for="userPassword">Password</label>
+      <div class="input-group mb-2 mr-sm-2">
+        <input
+          name="password"
+          type="password"
+          class="form-control"
+          id="userPassword"
+          placeholder="Password"
+        />
+      </div>
+
+      <button type="submit" value="login" class="btn btn-primary mb-2">
+        Submit
+      </button>
+    </form>
   </nav>
 </header>
