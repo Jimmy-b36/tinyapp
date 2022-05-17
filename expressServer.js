@@ -10,6 +10,7 @@ app.set('view engine', 'ejs');
 app.use(morgan('dev'));
 //use body parser
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 const urlDatabase = {
   b2xVn2: 'http://www.lighthouselabs.ca',
@@ -23,12 +24,13 @@ app.get('/', (req, res) => {
 
 //page for creating new tinyUrls
 app.get('/urls/new', (req, res) => {
-  res.render('urls_new');
+  const templateVars = { username: req.cookies['username'] };
+  res.render('urls_new', templateVars);
 });
 
 //respond with the url database
 app.get('/urls', (req, res) => {
-  const templateVars = { urls: urlDatabase };
+  const templateVars = { username: req.cookies['username'], urls: urlDatabase };
   res.render('urls_index', templateVars);
 });
 
@@ -38,6 +40,7 @@ app.get('/urls/:shortURL', (req, res) => {
   console.log('params:', req.body);
 
   const templateVars = {
+    username: req.cookies['username'],
     shortURL: req.params.shortURL,
     longURL: urlDatabase[shortURL],
   };
@@ -67,8 +70,12 @@ app.post('/urls/:shortURL/update', (req, res) => {
 //login submit form
 app.post('/urls/login', (req, res) => {
   res.cookie('username', req.body.username);
-  console.log('login body:', req.body);
-  console.log('Cookies', req.cookie);
+  res.redirect('/urls');
+});
+
+//logout submit button
+app.post('/urls/logout', (req, res) => {
+  res.clearCookie('username');
   res.redirect('/urls');
 });
 
