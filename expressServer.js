@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 const morgan = require('morgan');
 const port = 8080;
 app.set('view engine', 'ejs');
@@ -34,6 +35,8 @@ app.get('/urls', (req, res) => {
 // page for the created urls
 app.get('/urls/:shortURL', (req, res) => {
   const shortURL = req.params.shortURL;
+  console.log('params:', req.body);
+
   const templateVars = {
     shortURL: req.params.shortURL,
     longURL: urlDatabase[shortURL],
@@ -55,14 +58,18 @@ app.post('/urls/:shortURL/delete', (req, res) => {
 
 //button to update urls
 app.post('/urls/:shortURL/update', (req, res) => {
-  console.log('shortURL:', req.params.shortURL);
-
-  // need to look into this further!!!
-  let shortURL = req.params.shortURL.replace(':', '');
-  //This right here^^^
-
+  console.log('URLDB:', req.body);
+  let shortURL = req.params.shortURL;
   urlDatabase[shortURL] = req.body.longURL;
   res.redirect(`/urls/${shortURL}`);
+});
+
+//login submit form
+app.post('/urls/login', (req, res) => {
+  res.cookie('username', req.body.username);
+  console.log('login body:', req.body);
+  console.log('Cookies', req.cookie);
+  res.redirect('/urls');
 });
 
 //post entered url on submit and redirect to short url page with new random short url
