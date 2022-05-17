@@ -10,16 +10,6 @@ app.use(morgan('dev'));
 //use body parser
 app.use(bodyParser.urlencoded({ extended: true }));
 
-const generateRandString = () => {
-  let randString = '';
-  for (let i = 0; randString.length < 6; i++) {
-    let tmpStr = String.fromCharCode(Math.floor(Math.random() * 74 + 48));
-    tmpStr = tmpStr.replace(/[&\/\\#,+()$~%.;`'":[\]*?<_>=@{}]/, 'q');
-    randString += tmpStr;
-  }
-  return randString;
-};
-
 const urlDatabase = {
   b2xVn2: 'http://www.lighthouselabs.ca',
   '9sm5xK': 'http://www.google.com',
@@ -43,21 +33,30 @@ app.get('/urls', (req, res) => {
 
 // page for the created urls
 app.get('/urls/:shortURL', (req, res) => {
+  const shortURL = req.params.shortURL;
   const templateVars = {
     shortURL: req.params.shortURL,
-    longURL: req.params.longURL,
+    longURL: urlDatabase[shortURL],
   };
+  console.log('long url body:');
   res.render('urls_show', templateVars);
 });
 
+app.get('/u/:shortURL', (req, res) => {
+  console.log(req.body);
+  const longURL = urlDatabase[req.params.shortURL];
+  res.redirect(longURL);
+});
+
+//post entered url on submit and redirect to short url page with new random short url
 app.post('/urls', (req, res) => {
   let shortURL = '';
   for (let i = 0; shortURL.length < 6; i++) {
     let tmpStr = String.fromCharCode(Math.floor(Math.random() * 74 + 48));
-    tmpStr = tmpStr.replace(/[&\/\\#,+()$~%.;`'":[\]*?<_>=@{}]/, 'q');
+    tmpStr = tmpStr.replace(/[&\/\\#,+()$~%.;`^'":[\]*?<_>=@{}]/, 'q');
     shortURL += tmpStr;
   }
-  urlDatabase[shortURL] = req.params.longURL;
+  urlDatabase[shortURL] = req.body.longURL;
   console.log(req.body); // Log the POST request body to the console
   res.redirect(`/urls/${shortURL}`);
 });
