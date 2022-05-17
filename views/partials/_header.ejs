@@ -17,7 +17,7 @@
         <a href="/urls/new" class="nav-item nav-link">Create New URL</a>
       </div>
     </div>
-
+    <% if(!username) {%>
     <form action="/urls/login" method="POST" class="form-inline">
       <label class="sr-only" for="username">Username</label>
       <input
@@ -43,5 +43,15 @@
         Submit
       </button>
     </form>
+    <% } else {%>
+    <div class="d-flex">
+      <h4 class="m-2">Logged in as: <%= username%></h4>
+      <form action="/urls/logout" method="POST" class="form-inline">
+        <button type="submit" value="logout" class="btn btn-danger m-1">
+          Logout
+        </button>
+      </form>
+    </div>
+    <%}%>
   </nav>
 </header>
