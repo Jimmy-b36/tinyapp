@@ -38,18 +38,31 @@ app.get('/urls/:shortURL', (req, res) => {
     shortURL: req.params.shortURL,
     longURL: urlDatabase[shortURL],
   };
-  console.log('long url body:');
   res.render('urls_show', templateVars);
 });
 
+//redirect for our short urls to the correct website
 app.get('/u/:shortURL', (req, res) => {
   const longURL = urlDatabase[req.params.shortURL];
   res.redirect(longURL);
 });
 
+//button to delete urls
 app.post('/urls/:shortURL/delete', (req, res) => {
   delete urlDatabase[req.params.shortURL];
   res.redirect('/urls');
+});
+
+//button to update urls
+app.post('/urls/:shortURL/update', (req, res) => {
+  console.log('shortURL:', req.params.shortURL);
+
+  // need to look into this further!!!
+  let shortURL = req.params.shortURL.replace(':', '');
+  //This right here^^^
+
+  urlDatabase[shortURL] = req.body.longURL;
+  res.redirect(`/urls/${shortURL}`);
 });
 
 //post entered url on submit and redirect to short url page with new random short url
@@ -61,7 +74,6 @@ app.post('/urls', (req, res) => {
     shortURL += tmpStr;
   }
   urlDatabase[shortURL] = req.body.longURL;
-  console.log(req.body); // Log the POST request body to the console
   res.redirect(`/urls/${shortURL}`);
 });
 
