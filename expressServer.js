@@ -22,6 +22,11 @@ app.get('/', (req, res) => {
   res.send('Hello!');
 });
 
+app.get('/register', (req, res) => {
+  const templateVars = { username: req.cookies['username'] };
+  res.render('register', templateVars);
+});
+
 //page for creating new tinyUrls
 app.get('/urls/new', (req, res) => {
   const templateVars = { username: req.cookies['username'] };
@@ -66,6 +71,9 @@ app.post('/urls/:shortURL/update', (req, res) => {
   urlDatabase[shortURL] = req.body.longURL;
   res.redirect(`/urls/${shortURL}`);
 });
+
+//register form to post
+app.post;
 
 //login submit form
 app.post('/urls/login', (req, res) => {
