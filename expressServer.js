@@ -17,6 +17,8 @@ const urlDatabase = {
   '9sm5xK': 'http://www.google.com',
 };
 
+const usersDb = {};
+
 //set the homepage response
 app.get('/', (req, res) => {
   res.send('Hello!');
@@ -45,7 +47,7 @@ app.get('/urls/:shortURL', (req, res) => {
   console.log('params:', req.body);
 
   const templateVars = {
-    username: req.cookies['username'],
+    username: req.cookies[usersDb[username][username]],
     shortURL: req.params.shortURL,
     longURL: urlDatabase[shortURL],
   };
@@ -73,7 +75,16 @@ app.post('/urls/:shortURL/update', (req, res) => {
 });
 
 //register form to post
-app.post;
+app.post('/register/new', (req, res) => {
+  usersDb[req.body.username] = {
+    username: req.body.username,
+    password: req.body.password,
+    email: req.body.email,
+    awesomeness: req.body.awesome ? 'true' : 'false',
+  };
+  res.cookie('userId', usersDb[req.body.username]);
+  res.redirect('/urls');
+});
 
 //login submit form
 app.post('/urls/login', (req, res) => {
@@ -89,12 +100,7 @@ app.post('/urls/logout', (req, res) => {
 
 //post entered url on submit and redirect to short url page with new random short url
 app.post('/urls', (req, res) => {
-  let shortURL = '';
-  for (let i = 0; shortURL.length < 6; i++) {
-    let tmpStr = String.fromCharCode(Math.floor(Math.random() * 74 + 48));
-    tmpStr = tmpStr.replace(/[&\/\\#,+()$~%.;`^'":[\]*?<_>=@{}]/, 'q');
-    shortURL += tmpStr;
-  }
+  const shortURL = randStringGen();
   urlDatabase[shortURL] = req.body.longURL;
   res.redirect(`/urls/${shortURL}`);
 });
@@ -109,3 +115,13 @@ app.get('*', (req, res) => {
 app.listen(port, () => {
   console.log(`Listening on port ${port}`);
 });
+
+function randStringGen() {
+  let shortURL = '';
+  for (let i = 0; shortURL.length < 6; i++) {
+    let tmpStr = String.fromCharCode(Math.floor(Math.random() * 74 + 48));
+    tmpStr = tmpStr.replace(/[&\/\\#,+()$~%.;`^'":[\]*?<_>=@{}]/, 'q');
+    shortURL += tmpStr;
+  }
+  return shortURL;
+}
