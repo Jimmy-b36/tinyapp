@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Bootstrap CSS -->
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
+      integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS"
+      crossorigin="anonymous"
+    />
+    <title>TinyApp</title>
+  </head>
+  <body>
+    <%- include('partials/_header') %>
+    <div class="container">
+      <div class="card">
+        <div class="card-body m-4">
+          <form>
+            <div class="form-row">
+              <div class="form-group col-md-6">
+                <label for="emailRegister">Email</label>
+                <input
+                  name="email"
+                  type="email"
+                  class="form-control"
+                  id="emailRegister"
+                  placeholder="Email"
+                />
+              </div>
+              <div class="form-group col-md-6">
+                <label for="passwordRegister">Password</label>
+                <input
+                  name="password"
+                  type="password"
+                  class="form-control"
+                  id="passwordRegister"
+                  placeholder="Password"
+                />
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="username">Username</label>
+              <input
+                name="username"
+                type="text"
+                class="form-control"
+                id="username"
+                placeholder="Enter a username"
+              />
+            </div>
+
+            <div class="form-group">
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="gridCheck"
+                />
+                <label class="form-check-label" for="gridCheck">
+                  Are you awesome?
+                </label>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Register now</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
