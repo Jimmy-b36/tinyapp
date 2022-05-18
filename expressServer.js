@@ -71,6 +71,11 @@ app.get('/register', (req, res) => {
   res.render('register', templateVars);
 });
 
+app.get('/login', (req, res) => {
+  const templateVars = { username: req.cookies['userId'] };
+  res.render('login', templateVars);
+});
+
 //page for creating new tinyUrls
 app.get('/urls/new', (req, res) => {
   const templateVars = { username: req.cookies['userId'] };
@@ -141,14 +146,12 @@ app.post('/register', (req, res) => {
       console.log('Email or username already taken')
     );
   }
-
   usersDb[username] = {
     username,
     password,
     email,
     awesomeness: req.body.awesome ? 'true' : 'false',
   };
-  console.log('Database', usersDb);
   res.cookie('userId', usersDb[username].username);
   res.redirect('/urls');
 });
