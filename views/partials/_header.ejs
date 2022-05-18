@@ -15,17 +15,19 @@
       <div class="navbar-nav">
         <a href="/urls" class="nav-item nav-link">My Urls</a>
         <a href="/urls/new" class="nav-item nav-link">Create New URL</a>
-        <a href="/register" class="nav-item nav-link">Register</a>
+
         <% if (username) {%>
         <a href="/login" class="nav-item nav-link">Login</a>
-        <% }%>
+        <% } else {%><a href="/register" class="nav-item nav-link">Register</a>
+        <%}%>
       </div>
     </div>
     <% if(!username) {%>
     <a href="/login" class="nav-item nav-link btn btn-primary">Login</a>
     <% } else {%>
     <div class="d-flex">
-      <h4 class="m-2">Logged in as: <%= username%></h4>
+      <h4 class="m-2">Logged in as: <%= email%>/<%= username%></h4>
+
       <form action="/urls/logout" method="POST" class="form-inline">
         <button type="submit" value="logout" class="btn btn-danger m-1">
           Logout
