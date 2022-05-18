@@ -40,10 +40,19 @@ const randStringGen = function () {
 const checkEmail = (email, username) => {
   for (const user in usersDb) {
     if (usersDb[user].email === email || usersDb[user].username === username) {
-      return false;
+      return true;
     }
-    return true;
+    return false;
   }
+};
+
+const checkLogin = (email, password) => {
+  for (const user in usersDb) {
+    if (usersDb[user].email === email || usersDb[user].password === password) {
+      return true;
+    }
+  }
+  return false;
 };
 
 //----------------------------------------------------------
@@ -140,7 +149,7 @@ app.post('/register', (req, res) => {
       console.log('Please enter valid user || password')
     );
   }
-  if (!checkEmail(email, username)) {
+  if (checkEmail(email, username)) {
     return (
       res.status(400).redirect('back'),
       console.log('Email or username already taken')
@@ -157,14 +166,22 @@ app.post('/register', (req, res) => {
 });
 
 //login submit form
-app.post('/urls/login', (req, res) => {
-  res.cookie('username', req.body.username);
-  res.redirect('/urls');
+app.post('/login', (req, res) => {
+  if (checkLogin(req.body.email, req.body.password)) {
+    console.log(req.body);
+    for (const user in usersDb) {
+      if (usersDb[user].email === req.body.email) {
+        res.cookie('userId', usersDb[user].username);
+        res.redirect('/urls');
+      }
+    }
+  }
+  return res.status(403).redirect('back'), console.log('login not found');
 });
 
 //logout submit button
 app.post('/urls/logout', (req, res) => {
-  res.clearCookie('username');
+  res.clearCookie('userId');
   res.redirect('/urls');
 });
 
