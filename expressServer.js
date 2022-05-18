@@ -16,11 +16,7 @@ const urlDatabase = {
 };
 
 const usersDb = {
-  user1: {
-    username: 'user1',
-    password: 'password',
-    email: 'a@a.com',
-  },
+  testUser: { email: 'a@a.com', password: 'test', username: 'test' },
 };
 
 // --------------------------------
@@ -39,16 +35,17 @@ const randStringGen = function () {
 
 const checkEmail = (email, username) => {
   for (const user in usersDb) {
+    console.log('User', user);
     if (usersDb[user].email === email || usersDb[user].username === username) {
       return true;
     }
-    return false;
   }
+  return false;
 };
 
 const checkLogin = (email, password) => {
   for (const user in usersDb) {
-    if (usersDb[user].email === email || usersDb[user].password === password) {
+    if (usersDb[user].email === email && usersDb[user].password === password) {
       return true;
     }
   }
@@ -76,18 +73,27 @@ app.get('/', (req, res) => {
 
 // registration page
 app.get('/register', (req, res) => {
-  const templateVars = { username: req.cookies['userId'] };
+  const templateVars = {
+    username: req.cookies['userId'],
+    email: req.cookies['userEmail'],
+  };
   res.render('register', templateVars);
 });
 
 app.get('/login', (req, res) => {
-  const templateVars = { username: req.cookies['userId'] };
+  const templateVars = {
+    username: req.cookies['userId'],
+    email: req.cookies['userEmail'],
+  };
   res.render('login', templateVars);
 });
 
 //page for creating new tinyUrls
 app.get('/urls/new', (req, res) => {
-  const templateVars = { username: req.cookies['userId'] };
+  const templateVars = {
+    username: req.cookies['userId'],
+    email: req.cookies['userEmail'],
+  };
   res.render('urls_new', templateVars);
 });
 
@@ -95,6 +101,7 @@ app.get('/urls/new', (req, res) => {
 app.get('/urls', (req, res) => {
   const templateVars = {
     username: req.cookies['userId'],
+    email: req.cookies['userEmail'],
     urls: urlDatabase,
   };
   res.render('urls_index', templateVars);
@@ -107,6 +114,7 @@ app.get('/urls/:shortURL', (req, res) => {
 
   const templateVars = {
     username: req.cookies['userId'],
+    email: req.cookies['userEmail'],
     shortURL: req.params.shortURL,
     longURL: urlDatabase[shortURL],
   };
@@ -142,6 +150,7 @@ app.post('/register', (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
   const username = req.body.username;
+  const randId = randStringGen();
 
   if (email === '' || password === '') {
     return (
@@ -155,28 +164,30 @@ app.post('/register', (req, res) => {
       console.log('Email or username already taken')
     );
   }
-  usersDb[username] = {
+  usersDb[randId] = {
     username,
     password,
     email,
     awesomeness: req.body.awesome ? 'true' : 'false',
   };
-  res.cookie('userId', usersDb[username].username);
+  console.log('Database:', usersDb);
+  res.cookie('userId', usersDb[randId].username);
+  res.cookie('userEmail', usersDb[randId].email);
   res.redirect('/urls');
 });
 
 //login submit form
 app.post('/login', (req, res) => {
-  if (checkLogin(req.body.email, req.body.password)) {
-    console.log(req.body);
-    for (const user in usersDb) {
-      if (usersDb[user].email === req.body.email) {
-        res.cookie('userId', usersDb[user].username);
-        res.redirect('/urls');
-      }
+  if (!checkLogin(req.body.email, req.body.password)) {
+    return res.status(403).redirect('back'), console.log('login not found');
+  }
+
+  for (const user in usersDb) {
+    if (usersDb[user].email === req.body.email) {
+      res.cookie('userId', usersDb[user].username);
+      res.redirect('/urls');
     }
   }
-  return res.status(403).redirect('back'), console.log('login not found');
 });
 
 //logout submit button
