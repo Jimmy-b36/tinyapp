@@ -61,17 +61,6 @@ const checkLogin = (email, password) => {
   return false;
 };
 
-//function to make new urlDatabase or matching url id's
-// const newUrlDatabase = (urlDatabase) => {
-//   const uniqueUrlDb = {};
-//   const id = req.cookies['userId'];
-//   for (const url in urlDatabase) {
-//     if (urlDatabase[url].userId === id) {
-//       uniqueUrlDb[url] = urlDatabase[url];
-//     }
-//   }
-//   return uniqueUrlDb;
-// };
 //--------------------------------
 // MIDDLEWARE
 //--------------------------------
@@ -113,6 +102,10 @@ app.get('/login', (req, res) => {
 
 //page for creating new tinyUrls
 app.get('/urls/new', (req, res) => {
+  const userId = req.cookies['userId'];
+  if (!userId) {
+    return res.redirect('/error').status(402);
+  }
   const templateVars = {
     username: req.cookies['userName'],
     email: req.cookies['userEmail'],
@@ -140,23 +133,42 @@ app.get('/urls', (req, res) => {
   return res.render('urls_index', templateVars);
 });
 
-// page for the created urls
-app.get('/urls/:shortURL', (req, res) => {
-  const shortURL = req.params.shortURL;
-
+//error page
+app.get('/error', (req, res) => {
   const templateVars = {
     username: req.cookies['userName'],
     email: req.cookies['userEmail'],
-    shortURL: req.params.shortURL,
-    longURL: urlDatabase[shortURL].longURL,
+    userId: req.cookies['userId'],
   };
-  return res.render('urls_show', templateVars);
+  return res.render('error', templateVars);
+});
+
+// page for the created urls
+app.get('/urls/:shortURL', (req, res) => {
+  const shortURL = req.params.shortURL;
+  for (const urls in urlDatabase) {
+    if (shortURL === urls) {
+      console.log('params:', req.params);
+
+      const templateVars = {
+        username: req.cookies['userName'],
+        email: req.cookies['userEmail'],
+        shortURL: req.params.shortURL,
+        longURL: urlDatabase[shortURL].longURL,
+      };
+      return res.render('urls_show', templateVars);
+    }
+  }
+  return res.redirect('/error');
 });
 
 //redirect for our short urls to the correct website
 app.get('/u/:shortURL', (req, res) => {
   console.log('params:', req.params);
   const longURL = urlDatabase[req.params.shortURL].longURL;
+  if (!longURL) {
+    return res.status(402).send('Page not found');
+  }
   return res.redirect(longURL);
 });
 
@@ -168,7 +180,7 @@ app.get('/u/:shortURL', (req, res) => {
 app.post('/urls/:shortURL/delete', (req, res) => {
   const userId = req.cookies['userId'];
   if (!userId) {
-    return res.send("You can't do that!").status(402);
+    return res.send("You can't do that! Please login first").status(402);
   }
   delete urlDatabase[req.params.shortURL];
   return res.redirect('/urls');
@@ -178,7 +190,7 @@ app.post('/urls/:shortURL/delete', (req, res) => {
 app.post('/urls/:shortURL/update', (req, res) => {
   const userId = req.cookies['userId'];
   if (!userId) {
-    return res.send("You can't do that!").status(402);
+    return res.redirect('/error').status(402);
   }
   let shortURL = req.params.shortURL;
   urlDatabase[shortURL].longURL = req.body.longURL;
