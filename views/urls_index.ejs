@@ -36,13 +36,7 @@
             <td><a href="<%=urls[url].longURL%>"><%= url %></a></td>
             <td><%= urls[url].longURL %></td>
             <td>
-              <form
-                method="POST"
-                action="/urls/<%=url%>/update"
-                name="longURL"
-              >
-                <button type="submit" class="btn btn-info">UPDATE</button>
-              </form>
+              <a href="/urls/<%=url%>" class="btn btn-info">Update!</a>
             </td>
           </form>
             <td>
