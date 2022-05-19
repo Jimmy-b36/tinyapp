@@ -61,11 +61,19 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 //set the homepage response
 app.get('/', (req, res) => {
+  const userId = req.session.userId;
+  if (!userId) {
+    return res.redirect('/login');
+  }
   return res.redirect('/urls');
 });
 
 // registration page
 app.get('/register', (req, res) => {
+  const userId = req.session.userId;
+  if (userId) {
+    return res.redirect('/urls');
+  }
   const templateVars = {
     username: req.session.username,
     email: req.session.email,
@@ -89,7 +97,7 @@ app.get('/login', (req, res) => {
 app.get('/urls/new', (req, res) => {
   const userId = req.session.userId;
   if (!userId) {
-    return res.status(402).send('You do not have access');
+    return res.status(402).redirect('/login');
   }
   const templateVars = {
     username: req.session.username,
@@ -121,11 +129,11 @@ app.get('/urls', (req, res) => {
 
 // page for the created urls
 app.get('/urls/:shortURL', (req, res) => {
+  const shortURL = req.params.shortURL;
   const userId = req.session.userId;
-  if (!userId) {
+  if (!userId || userId !== urlDatabase[shortURL].userId) {
     return res.send('You do not have access').status(401);
   }
-  const shortURL = req.params.shortURL;
   for (const urls in urlDatabase) {
     if (shortURL === urls) {
       const templateVars = {
@@ -143,10 +151,10 @@ app.get('/urls/:shortURL', (req, res) => {
 
 //redirect for our short urls to the correct website
 app.get('/u/:shortURL', (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL].longURL;
-  if (!longURL) {
-    return res.status(402).send('Page not found');
+  if (urlDatabase[req.params.shortURL] === undefined) {
+    return res.status(402).send('Page not found maybe the short URL is wrong');
   }
+  const longURL = urlDatabase[req.params.shortURL].longURL;
   return res.redirect(longURL);
 });
 
@@ -172,7 +180,7 @@ app.post('/urls/:shortURL/update', (req, res) => {
   }
   let shortURL = req.params.shortURL;
   urlDatabase[shortURL].longURL = req.body.longURL;
-  return res.redirect(`/urls/${shortURL}`);
+  return res.redirect(`/urls`);
 });
 
 // registration form to create new user
