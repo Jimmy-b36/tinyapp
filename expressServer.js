@@ -6,23 +6,28 @@ const morgan = require('morgan');
 const port = 8080;
 app.set('view engine', 'ejs');
 
-//------------------------------------------------
+//--------------------------------
 //DATABASES
-//------------------------------------------------
+//--------------------------------
 
 const urlDatabase = {
-  b2xVn2: 'http://www.lighthouselabs.ca',
-  '9sm5xK': 'http://www.google.com',
+  b2xVn2: { longURL: 'http://www.lighthouselabs.ca', userId: 'testUser' },
 };
 
 const usersDb = {
-  testUser: { email: 'a@a.com', password: 'test', username: 'test' },
+  testUser: {
+    email: 'a@a.com',
+    password: 'test',
+    username: 'test',
+    userId: 'testUser',
+  },
 };
 
 // --------------------------------
 // FUNCTIONS
 // --------------------------------
 
+//func to generate rand string used for tiny url
 const randStringGen = function () {
   let shortURL = '';
   for (let i = 0; shortURL.length < 6; i++) {
@@ -33,6 +38,7 @@ const randStringGen = function () {
   return shortURL;
 };
 
+//function to check if email is available
 const checkEmail = (email, username) => {
   for (const user in usersDb) {
     console.log('User', user);
@@ -43,6 +49,7 @@ const checkEmail = (email, username) => {
   return false;
 };
 
+//function to check if user is authenticated
 const checkLogin = (email, password) => {
   for (const user in usersDb) {
     if (usersDb[user].email === email && usersDb[user].password === password) {
@@ -52,9 +59,21 @@ const checkLogin = (email, password) => {
   return false;
 };
 
-//----------------------------------------------------------
+//function to make new urlDatabase or matching url id's
+// const newUrlDatabase = (urlDatabase) => {
+//   const uniqueUrlDb = {};
+//   const id = req.cookies['userId'];
+//   for (const url in urlDatabase) {
+//     if (urlDatabase[url].userId === id) {
+//       uniqueUrlDb[url] = urlDatabase[url];
+//     }
+//   }
+//   return uniqueUrlDb;
+// };
+//--------------------------------
 // MIDDLEWARE
-//----------------------------------------------------------
+//--------------------------------
+
 //use morgan to see server actions
 app.use(morgan('dev'));
 
@@ -74,16 +93,18 @@ app.get('/', (req, res) => {
 // registration page
 app.get('/register', (req, res) => {
   const templateVars = {
-    username: req.cookies['userId'],
+    username: req.cookies['userName'],
     email: req.cookies['userEmail'],
+    userId: req.cookies['userId'],
   };
   res.render('register', templateVars);
 });
 
 app.get('/login', (req, res) => {
   const templateVars = {
-    username: req.cookies['userId'],
+    username: req.cookies['userName'],
     email: req.cookies['userEmail'],
+    userId: req.cookies['userId'],
   };
   res.render('login', templateVars);
 });
@@ -91,57 +112,74 @@ app.get('/login', (req, res) => {
 //page for creating new tinyUrls
 app.get('/urls/new', (req, res) => {
   const templateVars = {
-    username: req.cookies['userId'],
+    username: req.cookies['userName'],
     email: req.cookies['userEmail'],
+    userId: req.cookies['userId'],
   };
   res.render('urls_new', templateVars);
 });
 
 //respond with the url database
 app.get('/urls', (req, res) => {
+  const uniqueUrlDb = {};
+  const id = req.cookies['userId'];
+  for (const url in urlDatabase) {
+    if (urlDatabase[url].userId === id) {
+      uniqueUrlDb[url] = urlDatabase[url];
+    }
+  }
+
   const templateVars = {
-    username: req.cookies['userId'],
+    username: req.cookies['userName'],
     email: req.cookies['userEmail'],
-    urls: urlDatabase,
+    userId: req.cookies['userId'],
+    urls: uniqueUrlDb, //////////////////
   };
-  res.render('urls_index', templateVars);
+  return res.render('urls_index', templateVars);
 });
 
 // page for the created urls
 app.get('/urls/:shortURL', (req, res) => {
   const shortURL = req.params.shortURL;
-  console.log('params:', req.body);
 
   const templateVars = {
-    username: req.cookies['userId'],
+    username: req.cookies['userName'],
     email: req.cookies['userEmail'],
     shortURL: req.params.shortURL,
-    longURL: urlDatabase[shortURL],
+    longURL: urlDatabase[shortURL].longURL,
   };
-  res.render('urls_show', templateVars);
+  return res.render('urls_show', templateVars);
 });
 
 //redirect for our short urls to the correct website
 app.get('/u/:shortURL', (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL];
-  res.redirect(longURL);
+  console.log('params:', req.params);
+  const longURL = urlDatabase[req.params.shortURL].longURL;
+  return res.redirect(longURL);
 });
 
-// ------------------------
+// ------------------------------
 // POSTS
-// ------------------------
+// ------------------------------
 
 //button to delete urls
 app.post('/urls/:shortURL/delete', (req, res) => {
+  const userId = req.cookies['userId'];
+  if (!userId) {
+    return res.send("You can't do that!").status(402);
+  }
   delete urlDatabase[req.params.shortURL];
-  res.redirect('/urls');
+  return res.redirect('/urls');
 });
 
 // button to update urls
 app.post('/urls/:shortURL/update', (req, res) => {
-  console.log('URLDB:', req.body);
+  const userId = req.cookies['userId'];
+  if (!userId) {
+    return res.send("You can't do that!").status(402);
+  }
   let shortURL = req.params.shortURL;
-  urlDatabase[shortURL] = req.body.longURL;
+  urlDatabase[shortURL].longURL = req.body.longURL;
   res.redirect(`/urls/${shortURL}`);
 });
 
@@ -165,14 +203,18 @@ app.post('/register', (req, res) => {
     );
   }
   usersDb[randId] = {
+    userId: randId,
     username,
     password,
     email,
     awesomeness: req.body.awesome ? 'true' : 'false',
   };
   console.log('Database:', usersDb);
-  res.cookie('userId', usersDb[randId].username);
-  res.cookie('userEmail', usersDb[randId].email);
+  res
+    .cookie('userName', usersDb[randId].username)
+    .cookie('userId', usersDb[randId].userId)
+    .cookie('userEmail', usersDb[randId].email);
+
   res.redirect('/urls');
 });
 
@@ -184,7 +226,10 @@ app.post('/login', (req, res) => {
 
   for (const user in usersDb) {
     if (usersDb[user].email === req.body.email) {
-      res.cookie('userId', usersDb[user].username);
+      res
+        .cookie('userName', usersDb[user].username)
+        .cookie('userEmail', usersDb[user].email)
+        .cookie('userId', usersDb[user].userId);
       res.redirect('/urls');
     }
   }
@@ -192,14 +237,22 @@ app.post('/login', (req, res) => {
 
 //logout submit button
 app.post('/urls/logout', (req, res) => {
-  res.clearCookie('userId');
+  res.clearCookie('userName').clearCookie('userEmail').clearCookie('userId');
   res.redirect('/urls');
 });
 
 //post entered url on submit and redirect to short url page with new random short url
+
 app.post('/urls', (req, res) => {
+  const userId = req.cookies['userId'];
+  if (!userId) {
+    return res.send('please login first').status(400);
+  }
   const shortURL = randStringGen();
-  urlDatabase[shortURL] = req.body.longURL;
+  urlDatabase[shortURL] = {};
+  urlDatabase[shortURL].longURL = req.body.longURL;
+  urlDatabase[shortURL].userId = req.cookies['userId'];
+  console.log('URLDB:', urlDatabase);
   res.redirect(`/urls/${shortURL}`);
 });
 
