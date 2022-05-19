@@ -102,7 +102,6 @@ app.get('/urls/new', (req, res) => {
 
 //respond with the url database
 app.get('/urls', (req, res) => {
-  console.log(req.session.awesome);
   const uniqueUrlDb = {};
   for (const url in urlDatabase) {
     if (urlDatabase[url].userId === req.session.userId) {
@@ -129,8 +128,6 @@ app.get('/urls/:shortURL', (req, res) => {
   const shortURL = req.params.shortURL;
   for (const urls in urlDatabase) {
     if (shortURL === urls) {
-      console.log('params:', req.params);
-
       const templateVars = {
         username: req.session.username,
         email: req.session.email,
@@ -146,7 +143,6 @@ app.get('/urls/:shortURL', (req, res) => {
 
 //redirect for our short urls to the correct website
 app.get('/u/:shortURL', (req, res) => {
-  console.log('params:', req.params);
   const longURL = urlDatabase[req.params.shortURL].longURL;
   if (!longURL) {
     return res.status(402).send('Page not found');
@@ -243,7 +239,7 @@ app.post('/urls', (req, res) => {
   urlDatabase[shortURL] = {};
   urlDatabase[shortURL].longURL = req.body.longURL;
   urlDatabase[shortURL].userId = req.session.userId;
-  console.log('URLDB:', urlDatabase);
+
   return res.redirect(`/urls/${shortURL}`);
 });
 
