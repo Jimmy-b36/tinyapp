@@ -34,6 +34,7 @@ const checkLogin = (email, password, usersDb) => {
   return false;
 };
 
+//function to return the user when looking for them with the given email
 const lookupEmail = (email, usersDb) => {
   for (const user in usersDb) {
     if (usersDb[user].email === email) {
