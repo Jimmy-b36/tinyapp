@@ -14,9 +14,11 @@
     <div class="collapse navbar-collapse" id="pageLinks">
       <div class="navbar-nav">
         <a href="/urls" class="nav-item nav-link">My Urls</a>
+        <% if (!username) { %>
+        <a href="/urls" class="nav-item nav-link">Create new URL</a>
+        <% } else { %>
         <a href="/urls/new" class="nav-item nav-link">Create New URL</a>
-
-        <% if (username) {%>
+        <%}%> <% if (username) {%>
         <a href="/login" class="nav-item nav-link">Login</a>
         <% } else {%><a href="/register" class="nav-item nav-link">Register</a>
         <%}%>
