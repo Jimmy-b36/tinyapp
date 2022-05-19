@@ -2,7 +2,12 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const app = express();
 const bodyParser = require('body-parser');
-const { randStringGen, checkEmail, checkLogin } = require('./helpers.js');
+const {
+  randStringGen,
+  checkEmail,
+  checkLogin,
+  lookupEmail,
+} = require('./helpers.js');
 // const cookieParser = require('cookie-parser');
 var cookieSession = require('cookie-session');
 const morgan = require('morgan');
@@ -25,21 +30,8 @@ const usersDb = {
     password: bcrypt.hashSync('test', 10),
     username: 'test',
     userId: 'testUser',
-    awesome: true,
+    awesome: 'true',
   },
-};
-
-// --------------------------------
-// FUNCTIONS
-// --------------------------------
-
-const lookupUserEmail = (email, usersDb) => {
-  for (const user in usersDb) {
-    if (usersDb[user].email === email) {
-      return user;
-    }
-  }
-  return null;
 };
 
 //--------------------------------
@@ -110,6 +102,7 @@ app.get('/urls/new', (req, res) => {
 
 //respond with the url database
 app.get('/urls', (req, res) => {
+  console.log(req.session.awesome);
   const uniqueUrlDb = {};
   for (const url in urlDatabase) {
     if (urlDatabase[url].userId === req.session.userId) {
@@ -142,6 +135,7 @@ app.get('/urls/:shortURL', (req, res) => {
         username: req.session.username,
         email: req.session.email,
         shortURL: req.params.shortURL,
+        awesome: req.session.awesome,
         longURL: urlDatabase[shortURL].longURL,
       };
       return res.render('urls_show', templateVars);
@@ -217,7 +211,6 @@ app.post('/register', (req, res) => {
   req.session.userId = usersDb[randId].userId;
   req.session.awesome = usersDb[randId].awesome;
 
-  console.log(req.session.awesome);
   return res.redirect('/urls');
 });
 
@@ -226,16 +219,13 @@ app.post('/login', (req, res) => {
   if (!checkLogin(req.body.email, req.body.password, usersDb)) {
     return res.status(403).redirect('back'), console.log('login not found');
   }
-
-  for (const user in usersDb) {
-    if (usersDb[user].email === req.body.email) {
-      req.session.username = usersDb[user].username;
-      req.session.email = usersDb[user].email;
-      req.session.userId = usersDb[user].userId;
-      req.session.awesome = usersDb[user].awesome;
-      return res.redirect('/urls');
-    }
-  }
+  const email = req.body.email;
+  const user = lookupEmail(email, usersDb);
+  req.session.username = user.username;
+  req.session.email = user.email;
+  req.session.userId = user.userId;
+  req.session.awesome = user.awesome;
+  return res.redirect('/urls');
 });
 
 //logout submit button
