@@ -14,7 +14,6 @@ const randStringGen = function () {
 //function to check if email is available
 const checkEmail = (email, username, usersDb) => {
   for (const user in usersDb) {
-    console.log('User', user);
     if (usersDb[user].email === email || usersDb[user].username === username) {
       return true;
     }
@@ -35,4 +34,13 @@ const checkLogin = (email, password, usersDb) => {
   return false;
 };
 
-module.exports = { randStringGen, checkEmail, checkLogin };
+const lookupEmail = (email, usersDb) => {
+  for (const user in usersDb) {
+    if (usersDb[user].email === email) {
+      return usersDb[user];
+    }
+  }
+  return undefined;
+};
+
+module.exports = { randStringGen, checkEmail, checkLogin, lookupEmail };
