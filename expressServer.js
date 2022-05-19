@@ -10,10 +10,12 @@ app.set('view engine', 'ejs');
 //DATABASES
 //--------------------------------
 
+//example urlDB
 const urlDatabase = {
   b2xVn2: { longURL: 'http://www.lighthouselabs.ca', userId: 'testUser' },
 };
 
+//example userDb entry
 const usersDb = {
   testUser: {
     email: 'a@a.com',
@@ -128,7 +130,7 @@ app.get('/urls', (req, res) => {
       uniqueUrlDb[url] = urlDatabase[url];
     }
   }
-
+  //assign cookies
   const templateVars = {
     username: req.cookies['userName'],
     email: req.cookies['userEmail'],
@@ -241,8 +243,7 @@ app.post('/urls/logout', (req, res) => {
   res.redirect('/urls');
 });
 
-//post entered url on submit and redirect to short url page with new random short url
-
+//create new short url and redirect to short url page
 app.post('/urls', (req, res) => {
   const userId = req.cookies['userId'];
   if (!userId) {
