@@ -21,6 +21,8 @@
         <%}%> <% if (username) {%>
         <a href="/login" class="nav-item nav-link">Login</a>
         <% } else {%><a href="/register" class="nav-item nav-link">Register</a>
+        <%}%> <%if (awesome === true) {%>
+        <h4 class="pt-1 pl-5">You're awesome!</h4>
         <%}%>
       </div>
     </div>
