@@ -29,7 +29,7 @@ const usersDb = {
 // FUNCTIONS
 // --------------------------------
 
-//func to generate rand string used for tiny url
+//func to generate rand string used for tiny url & user random id
 const randStringGen = function () {
   let shortURL = '';
   for (let i = 0; shortURL.length < 6; i++) {
@@ -78,7 +78,7 @@ app.use(cookieParser());
 
 //set the homepage response
 app.get('/', (req, res) => {
-  res.send('Hello!');
+  res.redirect('/urls');
 });
 
 // registration page
@@ -104,7 +104,7 @@ app.get('/login', (req, res) => {
 app.get('/urls/new', (req, res) => {
   const userId = req.cookies['userId'];
   if (!userId) {
-    return res.redirect('/error').status(402);
+    return res.status(402).send('You do not have access').redirect('/error');
   }
   const templateVars = {
     username: req.cookies['userName'],
@@ -128,7 +128,7 @@ app.get('/urls', (req, res) => {
     username: req.cookies['userName'],
     email: req.cookies['userEmail'],
     userId: req.cookies['userId'],
-    urls: uniqueUrlDb, //////////////////
+    urls: uniqueUrlDb,
   };
   return res.render('urls_index', templateVars);
 });
