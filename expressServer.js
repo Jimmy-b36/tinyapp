@@ -20,7 +20,11 @@ app.set('view engine', 'ejs');
 
 //example urlDB
 const urlDatabase = {
-  b2xVn2: { longURL: 'http://www.lighthouselabs.ca', userId: 'testUser' },
+  b2xVn2: {
+    longURL: 'http://www.lighthouselabs.ca',
+    userId: 'testUser',
+    dateCreated: new Date(),
+  },
 };
 
 //example userDb entry
@@ -248,6 +252,7 @@ app.post('/urls', (req, res) => {
   urlDatabase[shortURL] = {};
   urlDatabase[shortURL].longURL = req.body.longURL;
   urlDatabase[shortURL].userId = req.session.userId;
+  urlDatabase[shortURL].dateCreated = new Date();
 
   return res.redirect(`/urls/${shortURL}`);
 });

@@ -26,6 +26,7 @@
           <tr>
             <th scope="col">Short URL</th>
             <th scope="col">Long URL</th>
+            <th scope="col">Date Created</th>
             <th scope="col">Update URL</th>
             <th scope="col">Delete URL</th>
           </tr>
@@ -35,6 +36,7 @@
           <tr>
             <td><a href="<%=urls[url].longURL%>"><%= url %></a></td>
             <td><%= urls[url].longURL %></td>
+            <td><%= urls[url].dateCreated %></td>
             <td>
               <a href="/urls/<%=url%>" class="btn btn-info">UPDATE!</a>
             </td>
