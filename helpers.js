@@ -14,7 +14,7 @@ const randStringGen = function () {
 //function to check if email is available
 const checkEmail = (email, username, usersDb) => {
   for (const user in usersDb) {
-    if (usersDb[user].email === email || usersDb[user].username === username) {
+    if (lookupEmail(email, usersDb) || usersDb[user].username === username) {
       return true;
     }
   }
@@ -25,7 +25,7 @@ const checkEmail = (email, username, usersDb) => {
 const checkLogin = (email, password, usersDb) => {
   for (const user in usersDb) {
     if (
-      usersDb[user].email === email &&
+      lookupEmail(email, usersDb) &&
       bcrypt.compareSync(password, usersDb[user].password)
     ) {
       return true;
