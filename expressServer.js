@@ -131,8 +131,6 @@ app.get('/urls', (req, res) => {
 app.get('/urls/:shortURL', (req, res) => {
   const shortURL = req.params.shortURL;
   const userId = req.session.userId;
-  console.log(userId);
-  console.log(shortURL);
   if (!urlDatabase[shortURL]) return res.send('Page not found').status(401);
   if (!userId || userId !== urlDatabase[shortURL].userId) {
     return res.send('You do not have access').status(401);
