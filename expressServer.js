@@ -137,6 +137,7 @@ app.get('/urls/:shortURL', (req, res) => {
     return res.send('You do not have access').status(401);
   }
 
+  //send the template vars to the html page
   for (const urls in urlDatabase) {
     if (shortURL === urls) {
       const templateVars = {
@@ -169,7 +170,6 @@ app.get('/u/:shortURL', (req, res) => {
 app.post('/urls/:shortURL/delete', (req, res) => {
   const userId = req.session.userId;
   const shortURL = req.params.shortURL;
-
   if (!userAuth(userId, urlDatabase, shortURL)) {
     return res
       .send(
