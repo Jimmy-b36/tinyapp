@@ -197,17 +197,8 @@ app.post('/register', (req, res) => {
   const username = req.body.username;
   const randId = randStringGen();
 
-  if (email === '' || password === '') {
-    return (
-      res.status(400).redirect('back'),
-      console.log('Please enter valid user || password')
-    );
-  }
   if (checkEmail(email, username, usersDb)) {
-    return (
-      res.status(400).redirect('back'),
-      console.log('Email or username already taken')
-    );
+    return res.status(400).send('Email or username already taken');
   }
   usersDb[randId] = {
     userId: randId,
@@ -227,7 +218,7 @@ app.post('/register', (req, res) => {
 //login submit form
 app.post('/login', (req, res) => {
   if (!checkLogin(req.body.email, req.body.password, usersDb)) {
-    return res.status(403).redirect('back'), console.log('login not found');
+    return res.status(403).send('Login not found');
   }
   const email = req.body.email;
   const user = lookupEmail(email, usersDb);
