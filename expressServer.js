@@ -168,21 +168,31 @@ app.get('/u/:shortURL', (req, res) => {
 //button to delete urls
 app.post('/urls/:shortURL/delete', (req, res) => {
   const userId = req.session.userId;
-  if (!userId) {
-    return res.send("You can't do that! Please login first").status(402);
+  const shortURL = req.params.shortURL;
+
+  if (!userAuth(userId, urlDatabase, shortURL)) {
+    return res
+      .send(
+        "You can't do that! Either login or try deleting one of your own URLs"
+      )
+      .status(402);
   }
-  delete urlDatabase[req.params.shortURL];
+
+  delete urlDatabase[shortURL];
   return res.redirect('/urls');
 });
 
 // button to update urls
 app.post('/urls/:shortURL/update', (req, res) => {
-  //check if user is logged in
   const userId = req.session.userId;
-  if (!userId) {
-    return res.send('You do not have access').status(401);
+  const shortURL = req.params.shortURL;
+  if (!userAuth(userId, urlDatabase, shortURL)) {
+    return res
+      .send(
+        "You can't do that! Either login or try deleting one of your own URLs"
+      )
+      .status(402);
   }
-  let shortURL = req.params.shortURL;
   urlDatabase[shortURL].longURL = req.body.longURL;
   return res.redirect(`/urls`);
 });
