@@ -44,4 +44,30 @@ const lookupEmail = (email, usersDb) => {
   return undefined;
 };
 
-module.exports = { randStringGen, checkEmail, checkLogin, lookupEmail };
+//function to check if a user is authourized to view a page
+const userAuth = (userId, urlDatabase, shortURL) => {
+  if (!userId || userId !== urlDatabase[shortURL].userId) {
+    return false;
+  }
+  return true;
+};
+
+//function to return all the urls belonging to a user
+const usersUrls = (userId, urlDatabase) => {
+  const uniqueUrlDb = {};
+  for (const url in urlDatabase) {
+    if (urlDatabase[url].userId === userId) {
+      uniqueUrlDb[url] = urlDatabase[url];
+    }
+  }
+  return uniqueUrlDb;
+};
+
+module.exports = {
+  randStringGen,
+  checkEmail,
+  checkLogin,
+  lookupEmail,
+  userAuth,
+  usersUrls,
+};

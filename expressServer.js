@@ -7,6 +7,8 @@ const {
   checkEmail,
   checkLogin,
   lookupEmail,
+  userAuth,
+  usersUrls,
 } = require('./helpers.js');
 // const cookieParser = require('cookie-parser');
 var cookieSession = require('cookie-session');
@@ -34,7 +36,7 @@ const usersDb = {
     password: bcrypt.hashSync('test', 10),
     username: 'test',
     userId: 'testUser',
-    awesome: 'true',
+    awesome: true,
   },
 };
 
@@ -66,18 +68,14 @@ app.use(bodyParser.urlencoded({ extended: true }));
 //set the homepage response
 app.get('/', (req, res) => {
   const userId = req.session.userId;
-  if (!userId) {
-    return res.redirect('/login');
-  }
+  if (!userAuth(userId)) return res.redirect('/login');
   return res.redirect('/urls');
 });
 
 // registration page
 app.get('/register', (req, res) => {
   const userId = req.session.userId;
-  if (userId) {
-    return res.redirect('/urls');
-  }
+  if (userId) return res.redirect('/urls');
   const templateVars = {
     username: req.session.username,
     email: req.session.email,
@@ -89,6 +87,8 @@ app.get('/register', (req, res) => {
 
 //Login page
 app.get('/login', (req, res) => {
+  const userId = req.session.userId;
+  if (userId) return res.redirect('/urls');
   const templateVars = {
     username: req.session.username,
     email: req.session.email,
@@ -101,9 +101,8 @@ app.get('/login', (req, res) => {
 //page for creating new tinyUrls
 app.get('/urls/new', (req, res) => {
   const userId = req.session.userId;
-  if (!userId) {
-    return res.status(402).redirect('/login');
-  }
+  if (!userId) return res.status(402).redirect('/login');
+
   const templateVars = {
     username: req.session.username,
     email: req.session.email,
@@ -115,12 +114,9 @@ app.get('/urls/new', (req, res) => {
 
 //respond with the url database
 app.get('/urls', (req, res) => {
-  const uniqueUrlDb = {};
-  for (const url in urlDatabase) {
-    if (urlDatabase[url].userId === req.session.userId) {
-      uniqueUrlDb[url] = urlDatabase[url];
-    }
-  }
+  const userId = req.session.userId;
+  const uniqueUrlDb = usersUrls(userId, urlDatabase);
+
   //assign cookies
   const templateVars = {
     username: req.session.username,
@@ -137,9 +133,10 @@ app.get('/urls/:shortURL', (req, res) => {
   const shortURL = req.params.shortURL;
   const userId = req.session.userId;
   if (!urlDatabase[shortURL]) return res.send('Page not found').status(401);
-  if (!userId || userId !== urlDatabase[shortURL].userId) {
+  if (!userAuth(userId, urlDatabase, shortURL)) {
     return res.send('You do not have access').status(401);
   }
+
   for (const urls in urlDatabase) {
     if (shortURL === urls) {
       const templateVars = {
@@ -180,6 +177,7 @@ app.post('/urls/:shortURL/delete', (req, res) => {
 
 // button to update urls
 app.post('/urls/:shortURL/update', (req, res) => {
+  //check if user is logged in
   const userId = req.session.userId;
   if (!userId) {
     return res.send('You do not have access').status(401);
@@ -205,7 +203,7 @@ app.post('/register', (req, res) => {
     username,
     password: hashedPassword,
     email,
-    awesome: req.body.awesome ? 'true' : 'false',
+    awesome: req.body.awesome ? true : false,
   };
   req.session.username = usersDb[randId].username;
   req.session.email = usersDb[randId].email;
