@@ -110,6 +110,13 @@ describe('#user authentication: it should return true or false depending on if a
     const result = userAuth(userId, urlData, shortURL);
     assert.isFalse(result);
   });
+  it('should return true if a user is authenticated', () => {
+    const userId = 'Steve';
+    const urlData = { abcdef: { userId: 'Steve', longURL: 'timmy.com' } };
+    const shortURL = 'abcdef';
+    const result = userAuth(userId, urlData, shortURL);
+    assert.isTrue(result);
+  });
 });
 
 describe('#usersUrls: returns all urls belonging to a user', () => {
