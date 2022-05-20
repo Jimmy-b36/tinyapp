@@ -4,6 +4,8 @@ const {
   checkEmail,
   checkLogin,
   lookupEmail,
+  userAuth,
+  usersUrls,
 } = require('../helpers.js');
 const bcrypt = require('bcryptjs');
 
@@ -92,5 +94,34 @@ describe('#return user: it should return the user object if the user is found us
   it('should return undefined if user does not exist', () => {
     const user = lookupEmail('user@eample.com', testUsers);
     assert.equal(user, undefined);
+  });
+});
+
+describe('#user authentication: it should return true or false depending on if a user is authourised to view a page', () => {
+  it('should return false if a user is not signed in', () => {
+    const userId = undefined;
+    const result = userAuth(userId);
+    assert.isFalse(result);
+  });
+  it('should return false if a user does not have access to a url', () => {
+    const userId = 'Jimmy';
+    const urlData = { abcdef: { userId: 'Timmy', longURL: 'timmy.com' } };
+    const shortURL = 'abcdef';
+    const result = userAuth(userId, urlData, shortURL);
+    assert.isFalse(result);
+  });
+});
+
+describe('#usersUrls: returns all urls belonging to a user', () => {
+  it('should return all the urls belonging to a user', () => {
+    const user = 'Cherise';
+    const urlData = {
+      12345: { userId: 'Cherise' },
+      abcdef: { userId: 'Dave' },
+    };
+    result = { 12345: { userId: 'Cherise' } };
+    const uniqueUrls = usersUrls(user, urlData);
+
+    assert.deepEqual(uniqueUrls, result);
   });
 });
