@@ -87,6 +87,7 @@ app.get('/register', (req, res) => {
   return res.render('register', templateVars);
 });
 
+//Login page
 app.get('/login', (req, res) => {
   const templateVars = {
     username: req.session.username,
