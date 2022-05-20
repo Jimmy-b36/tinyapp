@@ -75,12 +75,13 @@ app.get('/', (req, res) => {
 // registration page
 app.get('/register', (req, res) => {
   const userId = req.session.userId;
-  if (userId) return res.redirect('/urls');
+  const user = usersDb[userId];
+  if (user) return res.redirect('/urls');
   const templateVars = {
-    username: req.session.username,
-    email: req.session.email,
-    userId: req.session.userId,
-    awesome: req.session.awesome,
+    username: null,
+    email: null,
+    userId: null,
+    awesome: null,
   };
   return res.render('register', templateVars);
 });
@@ -88,12 +89,13 @@ app.get('/register', (req, res) => {
 //Login page
 app.get('/login', (req, res) => {
   const userId = req.session.userId;
-  if (userId) return res.redirect('/urls');
+  const user = usersDb[userId];
+  if (user) return res.redirect('/urls');
   const templateVars = {
-    username: req.session.username,
-    email: req.session.email,
-    userId: req.session.userId,
-    awesome: req.session.awesome,
+    username: null,
+    email: null,
+    userId: null,
+    awesome: null,
   };
   return res.render('login', templateVars);
 });
@@ -101,13 +103,14 @@ app.get('/login', (req, res) => {
 //page for creating new tinyUrls
 app.get('/urls/new', (req, res) => {
   const userId = req.session.userId;
+  const user = usersDb[userId];
   if (!userId) return res.status(402).redirect('/login');
 
   const templateVars = {
-    username: req.session.username,
-    email: req.session.email,
-    userId: req.session.userId,
-    awesome: req.session.awesome,
+    username: user.username,
+    email: user.email,
+    userId: user.userId,
+    awesome: user.awesome,
   };
   return res.render('urls_new', templateVars);
 });
@@ -115,23 +118,27 @@ app.get('/urls/new', (req, res) => {
 //respond with the url database
 app.get('/urls', (req, res) => {
   const userId = req.session.userId;
+  const user = usersDb[userId];
   const uniqueUrlDb = usersUrls(userId, urlDatabase);
 
-  //assign cookies
-  const templateVars = {
-    username: req.session.username,
-    email: req.session.email,
-    userId: req.session.userId,
-    awesome: req.session.awesome,
-    urls: uniqueUrlDb,
-  };
-  return res.render('urls_index', templateVars);
+  if (user) {
+    const templateVars = {
+      username: user.username,
+      email: user.email,
+      userId: user.userId,
+      awesome: user.awesome,
+      urls: uniqueUrlDb,
+    };
+    return res.render('urls_index', templateVars);
+  }
+  return res.redirect('/login');
 });
 
 // page for the created urls
 app.get('/urls/:shortURL', (req, res) => {
   const shortURL = req.params.shortURL;
   const userId = req.session.userId;
+  const user = usersDb[userId];
   if (!urlDatabase[shortURL]) return res.send('Page not found').status(401);
   if (!userAuth(userId, urlDatabase, shortURL)) {
     return res.send('You do not have access').status(401);
@@ -141,10 +148,10 @@ app.get('/urls/:shortURL', (req, res) => {
   for (const urls in urlDatabase) {
     if (shortURL === urls) {
       const templateVars = {
-        username: req.session.username,
-        email: req.session.email,
+        username: user.username,
+        email: user.email,
         shortURL: req.params.shortURL,
-        awesome: req.session.awesome,
+        awesome: user.awesome,
         longURL: urlDatabase[shortURL].longURL,
       };
       return res.render('urls_show', templateVars);
@@ -208,6 +215,7 @@ app.post('/register', (req, res) => {
   if (checkEmail(email, username, usersDb)) {
     return res.status(400).send('Email or username already taken');
   }
+
   usersDb[randId] = {
     userId: randId,
     username,
@@ -215,10 +223,7 @@ app.post('/register', (req, res) => {
     email,
     awesome: req.body.awesome ? true : false,
   };
-  req.session.username = usersDb[randId].username;
-  req.session.email = usersDb[randId].email;
-  req.session.userId = usersDb[randId].userId;
-  req.session.awesome = usersDb[randId].awesome;
+  req.session.userId = randId;
 
   return res.redirect('/urls');
 });
@@ -230,10 +235,9 @@ app.post('/login', (req, res) => {
   }
   const email = req.body.email;
   const user = lookupEmail(email, usersDb);
-  req.session.username = user.username;
-  req.session.email = user.email;
+
   req.session.userId = user.userId;
-  req.session.awesome = user.awesome;
+
   return res.redirect('/urls');
 });
 
