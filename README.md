@@ -24,7 +24,6 @@ TinyApp is a full stack web application built with Node and Express that allows 
 
 - Use (email: a@a.com, password: test) to test site with full access.
 - Register a new user on the registration page.
-- Logging in for a second time overwrites the current logged in user.
 - Deleting a tinyURL results in a permanent deletion.
 - Only the logged in user can edit their own creations.
 - Anyone can access you're created URLs using /u/UNIQUE-URL-HERE.
