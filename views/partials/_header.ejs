@@ -18,16 +18,16 @@
         <a href="/login" class="nav-item nav-link">Create new URL</a>
         <% } else { %>
         <a href="/urls/new" class="nav-item nav-link">Create New URL</a>
-        <%}%> <% if (username) {%>
-        <a href="/login" class="nav-item nav-link">Login</a>
-        <% } else {%><a href="/register" class="nav-item nav-link">Register</a>
-        <%}%> <%if (awesome === 'true') {%>
+        <% } %> <%if (awesome === true) {%>
         <h4 class="pt-1 pl-5">You're awesome!</h4>
         <%}%>
       </div>
     </div>
     <% if(!username) {%>
     <a href="/login" class="nav-item nav-link btn btn-primary">Login</a>
+    <a href="/register" class="nav-item nav-link btn btn-primary ml-1"
+      >Register</a
+    >
     <% } else {%>
     <div class="d-flex">
       <h4 class="m-2">Logged in as: <%= email%>/<%= username%></h4>
